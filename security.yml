@@ -1,0 +1,38 @@
+---
+- hosts: all
+  become: true
+
+  handlers:
+    - name: Restart ssh
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+
+  tasks:
+    - name: Update SSH configuration
+      ansible.builtin.lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: '{{ item.regexp }}'
+        line: '{{ item.line }}'
+        state: present
+        validate: 'sshd -t -f %s'
+        backup: true
+      with_items:
+        - regexp: '^#?PasswordAuthentication'
+          line: 'PasswordAuthentication no'
+        - regexp: '^#?PermitRootLogin'
+          line: 'PermitRootLogin no'
+      notify: Restart ssh
+
+    - name: Add user manoli
+      ansible.builtin.user:
+        name: manoli
+
+    - name: Enable passwordless sudo for user manoli
+      ansible.builtin.lineinfile:
+        dest: /etc/sudoers
+        regexp: '^manoli'
+        line: 'manoli ALL=(ALL) NOPASSWD: ALL'
+        state: present
+        validate: 'visudo -cf %s'
+        backup: true
