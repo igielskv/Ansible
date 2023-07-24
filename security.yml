@@ -70,3 +70,29 @@
       with_items:
         - 20auto-upgrades
         - 50unattended-upgrades
+
+    - name: Install firewalld
+      ansible.builtin.apt:
+        name: firewalld
+        state: present
+
+    - name: Ensure firewalld is running
+      ansible.builtin.service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Configure ports in firewalld
+      ansible.posix.firewalld:
+        zone: external
+        port: '{{ item.port }}'
+        state: '{{ item.state }}'
+        permanent: true
+        immediate: true
+      with_items:
+        - port: 22/tcp
+          state: enabled
+        - port: 80/tcp
+          state: enabled
+        - port: 123/udp
+          state: enabled
