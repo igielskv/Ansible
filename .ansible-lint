@@ -1,5 +1,4 @@
 ---
-# .ansible-lint
 
 skip_list:
   - name[play]

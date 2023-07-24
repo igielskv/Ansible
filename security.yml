@@ -54,3 +54,8 @@
         owner: root
         group: root
         mode: '0644'
+
+    - name: System update
+      ansible.builtin.apt:
+        upgrade: dist
+        update_cache: yes
