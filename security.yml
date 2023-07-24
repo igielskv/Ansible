@@ -47,3 +47,10 @@
           - apache2
         state: absent
         purge: true
+
+    - name: Set file permissions
+      ansible.builtin.file:
+        path: /etc/ssh/sshd_config
+        owner: root
+        group: root
+        mode: '0644'
