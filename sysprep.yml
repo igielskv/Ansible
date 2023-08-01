@@ -1,0 +1,26 @@
+---
+- name: Reset machine-id
+  hosts: templates
+  become: true
+
+  tasks:
+    - name: Make /etc/machine-id a 0-byte file
+      community.general.filesize:
+        path: /etc/machine-id
+        size: 0
+
+    - name: Remove D-Bus machine ID
+      ansible.builtin.file:
+        path: /var/lib/dbus/machine-id
+        state: absent
+
+    - name: Generate new D-Bus machine ID
+      ansible.builtin.command:
+        cmd: dbus-uuidgen --ensure
+        creates: /var/lib/dbus/machine-id
+
+    - name: Initialize machine ID from D-Bus machine ID
+      ansible.builtin.command:
+        cmd: systemd-machine-id-setup
+      register: systemd_machine_id_setup
+      changed_when: systemd_machine_id_setup.stderr != ''
