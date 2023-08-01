@@ -27,6 +27,7 @@
     - name: Add user manoli
       ansible.builtin.user:
         name: manoli
+        state: present
 
     - name: Enable passwordless sudo for user manoli
       ansible.builtin.lineinfile:
@@ -96,3 +97,22 @@
           state: enabled
         - port: 123/udp
           state: enabled
+
+    - name: Install fail2ban
+      ansible.builtin.apt:
+        name: fail2ban
+        state: present
+
+    - name: Copy fail2ban configuration file in place
+      ansible.builtin.template:
+        src: templates/jail.local.j2
+        dest: /etc/fail2ban/jail.local
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Ensure fail2ban is running
+      ansible.builtin.service:
+        name: fail2ban
+        state: started
+        enabled: yes
