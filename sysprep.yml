@@ -2,9 +2,12 @@
 - hosts: templates
   become: true
 
+  vars_files:
+    - vault.yml
+
   tasks:
     - name: Reset machine-id
-      tags: machine-id
+      tags: machine_id
       block:
         - name: Make /etc/machine-id a 0-byte file
           community.general.filesize:
