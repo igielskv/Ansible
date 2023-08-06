@@ -26,3 +26,26 @@
             cmd: systemd-machine-id-setup
           register: systemd_machine_id_setup
           changed_when: systemd_machine_id_setup.stderr != ''
+
+
+    - name: Reset SSH host keys
+      tags: ssh_host_keys
+      block:
+        - name: Find SSH host key files
+          ansible.builtin.find:
+            paths: /etc/ssh
+            patterns: '^ssh_host_.*_key(\.pub)?$'
+            use_regex: true
+          register: ssh_host_key
+
+        - name: Remove SSH host keys
+          ansible.builtin.file:
+            path: '{{ item.path }}'
+            state: absent
+          with_items: '{{ ssh_host_key.files }}'
+
+        - name: Reconfigure openssh-server
+          ansible.builtin.command:
+            cmd: dpkg-reconfigure openssh-server
+          register: openssh_server_recon
+          changed_when: '"Creating" in openssh_server_recon.stderr'
