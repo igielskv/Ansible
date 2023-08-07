@@ -38,7 +38,7 @@
 
 
     - name: Reset DHCP lease files
-      tags: dhcp-lease-files
+      tags: dhcp_lease_files
       block:
         - name: Find DHCP lease files
           ansible.builtin.find:
