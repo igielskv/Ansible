@@ -5,6 +5,12 @@
   vars_files:
     - vault.yml
 
+  handlers:
+    - name: restart_networking
+      ansible.builtin.service:
+        name: networking
+        state: restarted
+
   tasks:
     - name: Reset machine-id
       tags: machine_id
@@ -29,6 +35,24 @@
             cmd: systemd-machine-id-setup
           register: systemd_machine_id_setup
           changed_when: systemd_machine_id_setup.stderr != ''
+
+
+    - name: Reset DHCP lease files
+      tags: dhcp-lease-files
+      block:
+        - name: Find DHCP lease files
+          ansible.builtin.find:
+            paths:
+              - /var/lib/dhcp
+              - /var/lib/dhclient
+          register: dhcp_lease
+
+        - name: Remove DHCP lease files
+          ansible.builtin.file:
+            path: '{{ item.path }}'
+            state: absent
+          with_items: '{{ dhcp_lease.files }}'
+          notify: restart_networking
 
 
     - name: Reset SSH host keys
