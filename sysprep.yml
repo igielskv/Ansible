@@ -76,3 +76,23 @@
             cmd: dpkg-reconfigure openssh-server
           register: openssh_server_recon
           changed_when: '"Creating" in openssh_server_recon.stderr'
+
+
+    - name: Remove root and users history
+      tags: history
+      block:
+        - name: Find history files
+          ansible.builtin.find:
+            paths:
+              - /root
+              - /home
+            patterns: '.*history'
+            hidden: true
+            recurse: true
+          register: history
+
+        - name: Remove history files
+          ansible.builtin.file:
+            path: '{{ item.path }}'
+            state: absent
+          with_items: '{{ history.files }}'
