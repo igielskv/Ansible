@@ -107,18 +107,19 @@
     - name: Setup hostname
       tags: hostname
       block:
-        - name: Modify /etc/hostname
+        - name: Set /etc/hostname
           ansible.builtin.template:
             dest: /etc/hostname
             src: hostname.j2
+          register: etc_hostname
 
-        - name: Modify /etc/hosts
+        - name: Set /etc/hosts
           ansible.builtin.lineinfile:
             path: /etc/hosts
-            search_string: "127.0.1.1"
-            line: "127.0.1.1\t{{ inventory_hostname }}\t{{ hostname }}"
+            search_string: '127.0.1.1'
+            line: '127.0.1.1 {{ inventory_hostname }} {{ hostname }}'
 
         - name: Setup hostname
-          ansible.builtin.hostname:
-            name: '{{ hostname }}'
-            use: debian
+          ansible.builtin.command:
+            cmd: 'hostnamectl hostname {{ hostname }}'
+          changed_when: etc_hostname.changed

@@ -5,7 +5,11 @@
     - vault.yml
 
   tasks:
-    - name: Checkout facts
+    - name: All Ansible Facts
+      ansible.builtin.debug:
+        var: ansible_facts
+
+    - name: Checkout hostname
       ansible.builtin.debug:
         msg:
           - "ansible_hostname = {{ ansible_hostname }}"
