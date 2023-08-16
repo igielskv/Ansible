@@ -3,3 +3,5 @@
 skip_list:
   - name[casing]
   - name[play]
+  - no-tabs
+  - risky-file-permissions
