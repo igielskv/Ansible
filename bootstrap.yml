@@ -1,0 +1,41 @@
+---
+- hosts: all
+  become: true
+
+  vars_files:
+    - vault.yml
+
+  tasks:
+    - name: Install essential apt-packages
+      ansible.builtin.apt:
+        name:
+          - vim
+          - tree
+          - htop
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Configure Manoli's user access
+      tags: mgmt_user
+      block:
+        - name: Setup Manoli's user account
+          ansible.builtin.user:
+            name: manoli
+            comment: Manoli
+            shell: /bin/bash
+            group: manoli
+            groups: cdrom,floppy,sudo,audio,dip,video,plugdev,users,netdev
+            state: present
+
+        - name: Add Manoli's SSH authorized key
+          ansible.posix.authorized_key:
+            user: manoli
+            state: present
+            key: '{{ lookup("file", "~/.ssh/personal_ed25519.pub") }}'
+
+        - name: Allow Manoli to passwordless sudo
+          community.general.sudoers:
+            name: manoli-nopasswd
+            user: manoli
+            commands: ALL
