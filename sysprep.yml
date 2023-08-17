@@ -48,8 +48,7 @@
       block:
         - name: Find DHCP lease files
           ansible.builtin.find:
-            paths:
-              - /var/lib/dhcp
+            paths: /var/lib/dhcp
           register: dhcp_lease
 
         - name: Remove DHCP lease files
